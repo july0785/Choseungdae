@@ -34,11 +34,11 @@ public partial class WordView : UserControl
 
         var (modules, errors) = ContentModule.LoadDir(Path.Combine(AppConfig.DataDir, "words"));
         var pool = modules.Where(m => m.Items is not null).SelectMany(m => m.Items!).ToList();
-        if (pool.Count == 0) pool.Add("동무");
         var rng = new Random();
         _words = pool.OrderBy(_ => rng.Next()).Take(Round).ToList();
 
-        StartWord(0);
+        if (_words.Count == 0) ShowEmpty();
+        else StartWord(0);
 
         Loaded += (_, _) =>
         {
@@ -50,6 +50,18 @@ public partial class WordView : UserControl
         {
             if (_window is not null) _window.PreviewKeyDown -= OnKey;
         };
+    }
+
+    /// <summary>낱말 모듈이 비었을 때(례: 삼흥사전 추출 대기) 빈 화면 안내.</summary>
+    void ShowEmpty()
+    {
+        _finished = true;
+        TitleText.Text = "낱말련습";
+        TargetText.Inlines.Clear();
+        TargetText.Inlines.Add(new Run("낱말이 아직 없습니다") { Foreground = (Brush)FindResource("Faint") });
+        TypedText.Inlines.Clear();
+        HintText.Text = "시작화면 — Esc";
+        Kb.SetNext(null);
     }
 
     void StartWord(int index)

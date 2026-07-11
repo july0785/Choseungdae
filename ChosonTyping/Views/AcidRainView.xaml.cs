@@ -47,7 +47,6 @@ public partial class AcidRainView : UserControl
         var (modules, errors) = ContentModule.LoadDir(Path.Combine(AppConfig.DataDir, "words"));
         _pool = modules.Where(m => m.Items is not null).SelectMany(m => m.Items!)
             .Where(w => w.Length <= 5).ToList();
-        if (_pool.Count == 0) _pool.Add("동무");
 
         _timer.Tick += Tick;
         UpdateHud();
@@ -57,6 +56,14 @@ public partial class AcidRainView : UserControl
             _window = Window.GetWindow(this);
             if (_window is not null) _window.PreviewKeyDown += OnKey;
             ErrorDialog.ShowErrors(_window, errors);
+            if (_pool.Count == 0)
+            {
+                _over = true;
+                OverTitle.Text = "낱말이 아직 없습니다";
+                OverDetail.Text = "삼흥사전에서 낱말을 뽑으면 산성비를 즐길수 있습니다.";
+                GameOverPanel.Visibility = Visibility.Visible;
+                return;
+            }
             _watch.Start();
             _timer.Start();
         };

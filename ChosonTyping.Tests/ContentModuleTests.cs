@@ -71,12 +71,16 @@ public class ContentModuleTests
     [Fact]
     public void 내장_모듈이_전부_옳게_열린다()
     {
+        // 낱말(words)은 삼흥사전 추출 대기로 비어있을수 있으니 문장·긴글만 필수로 본다.
         var dataDir = Path.Combine(AppContext.BaseDirectory, "data");
-        foreach (var sub in new[] { "words", "sentences", "longtext" })
+        foreach (var sub in new[] { "sentences", "longtext" })
         {
             var (ok, errors) = ContentModule.LoadDir(Path.Combine(dataDir, sub));
             Assert.Empty(errors);
             Assert.NotEmpty(ok);
         }
+        // 낱말 폴더가 있으면 그 안의 모듈은 무결해야 한다.
+        var (_, wordErrors) = ContentModule.LoadDir(Path.Combine(dataDir, "words"));
+        Assert.Empty(wordErrors);
     }
 }
