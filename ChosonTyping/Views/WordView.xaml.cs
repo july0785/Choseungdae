@@ -153,7 +153,7 @@ public partial class WordView : UserControl
     {
         SentenceView.RenderOverlay(_session, TargetText, this);
         var next = _session.NextKey();
-        Kb.SetNext(next?.Token);
+        Kb.SetNext(next?.Token, next?.Shift ?? false);
         UpdateStats();
     }
 
