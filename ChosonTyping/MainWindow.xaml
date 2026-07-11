@@ -21,8 +21,9 @@
                     MouseLeftButtonDown="AppBar_MouseDown">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Image x:Name="LogoImage" Height="18" Visibility="Collapsed"
-                               RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
+                        <Image x:Name="LogoImage" Height="30" Visibility="Collapsed"
+                               RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"
+                               Margin="0,-4,0,-4"/>
                         <TextBlock x:Name="WordmarkText" FontSize="15" FontWeight="ExtraBold"
                                    Foreground="{DynamicResource Ink}" VerticalAlignment="Center">
                             <Run Text="최승대"/><Run Text="." Foreground="{DynamicResource Accent}"/>
