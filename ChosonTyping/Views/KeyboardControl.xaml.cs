@@ -27,7 +27,9 @@ public partial class KeyboardControl : UserControl
     };
 
     readonly Dictionary<string, Border> _keys = new();
+    readonly List<Border> _shiftKeys = new();
     Border? _next;
+    bool _shiftLit;
 
     public KeyboardControl()
     {
@@ -38,7 +40,9 @@ public partial class KeyboardControl : UserControl
     {
         Rows.Children.Clear();
         _keys.Clear();
+        _shiftKeys.Clear();
         _next = null;
+        _shiftLit = false;
         foreach (var row in PhysicalRows)
         {
             var p = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
@@ -88,6 +92,7 @@ public partial class KeyboardControl : UserControl
             });
         }
 
+        bool soft = special || jamo is null;
         var bd = new Border
         {
             Width = 48 * w,
@@ -95,32 +100,48 @@ public partial class KeyboardControl : UserControl
             CornerRadius = new CornerRadius(8),
             BorderBrush = (Brush)FindResource("Hair"),
             BorderThickness = new Thickness(1),
-            Background = special || jamo is null
-                ? (Brush)FindResource("Soft")
-                : (Brush)FindResource("Paper"),
+            Background = (Brush)FindResource(soft ? "Soft" : "Paper"),
             Margin = new Thickness(0, 0, 6, 0),
+            Tag = soft,                       // 쉬는 바탕이 Soft인지 Paper인지 기억
             Child = grid,
         };
         if (!special && !_keys.ContainsKey(tok)) _keys[tok] = bd;
+        if (tok.StartsWith("#윗글쇠")) _shiftKeys.Add(bd);
         return bd;
     }
 
-    /// <summary>다음에 칠 글쇠 하나만 빨강으로. null이면 강조 해제.</summary>
-    public void SetNext(string? tok)
+    /// <summary>다음에 칠 글쇠를 강조한다. 윗글쇠가 필요하면 쉬프트건도 함께 강조.</summary>
+    public void SetNext(string? tok, bool shift = false)
     {
-        if (_next is not null)
+        if (_next is not null) { ResetKey(_next); _next = null; }
+        if (_shiftLit) { foreach (var s in _shiftKeys) ResetKey(s); _shiftLit = false; }
+
+        if (tok is not null && _keys.TryGetValue(tok, out var bd))
         {
-            _next.Background = (Brush)FindResource("Paper");
-            _next.BorderBrush = (Brush)FindResource("Hair");
-            foreach (TextBlock t in ((Grid)_next.Child).Children)
-                t.Foreground = (Brush)FindResource(t.FontSize >= 18 ? "Ink" : "Faint");
-            _next = null;
+            LightKey(bd);
+            _next = bd;
         }
-        if (tok is null || !_keys.TryGetValue(tok, out var bd)) return;
+        if (shift && _shiftKeys.Count > 0)
+        {
+            foreach (var s in _shiftKeys) LightKey(s);
+            _shiftLit = true;
+        }
+    }
+
+    void LightKey(Border bd)
+    {
         bd.Background = (Brush)FindResource("Accent");
         bd.BorderBrush = (Brush)FindResource("Accent");
         foreach (TextBlock t in ((Grid)bd.Child).Children) t.Foreground = Brushes.White;
-        _next = bd;
+    }
+
+    void ResetKey(Border bd)
+    {
+        bool soft = bd.Tag is true;
+        bd.Background = (Brush)FindResource(soft ? "Soft" : "Paper");
+        bd.BorderBrush = (Brush)FindResource("Hair");
+        foreach (TextBlock t in ((Grid)bd.Child).Children)
+            t.Foreground = (Brush)FindResource(soft ? "Mid" : (t.FontSize >= 18 ? "Ink" : "Faint"));
     }
 
     /// <summary>친 글쇠는 잠깐(150ms) 회색 — 은은한 동작(설계서 7항).</summary>

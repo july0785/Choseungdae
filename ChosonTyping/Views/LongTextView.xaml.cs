@@ -141,6 +141,12 @@ public partial class LongTextView : UserControl
         string? tok = KeyMapper.ToToken(e.Key);
         if (tok is null) return;
         e.Handled = true;
+        // 줄을 다 쳤으면 사이띄기(공백)로 다음 줄로 넘어간다.
+        if (tok == " " && _session.Done)
+        {
+            NextLineGo();
+            return;
+        }
         if (!_watch.IsRunning) _watch.Start();
         bool shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
         if (_session.Feed(tok, shift)) Kb.Flash(tok);
@@ -165,7 +171,7 @@ public partial class LongTextView : UserControl
     {
         SentenceView.RenderOverlay(_session, TargetLine, this);
         var next = _session.NextKey();
-        Kb.SetNext(next?.Token);
+        Kb.SetNext(next?.Token, next?.Shift ?? false);
         UpdateStats();
     }
 
