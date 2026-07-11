@@ -23,7 +23,7 @@ public partial class KeyboardControl : UserControl
                ("J",1.0),("K",1.0),("L",1.0),(";",1.0),("'",1.0),("#넣기",1.9) },
         new[]{ ("#윗글쇠",2.6),("Z",1.0),("X",1.0),("C",1.0),("V",1.0),("B",1.0),("N",1.0),
                ("M",1.0),(",",1.0),(".",1.0),("/",1.0),("#윗글쇠2",2.6) },
-        new[]{ ("# ",1.8),("#사이띄기",9.4),("# 2",1.8) },
+        new[]{ ("# ",1.8),(" ",9.4),("# 2",1.8) },
     };
 
     readonly Dictionary<string, Border> _keys = new();
@@ -50,9 +50,10 @@ public partial class KeyboardControl : UserControl
     Border MakeKey(string tok, double w, KeyboardLayout layout)
     {
         bool special = tok.StartsWith('#');
-        string label = special ? tok[1..].TrimEnd('2') : tok;
-        string? jamo = special ? null : layout.JamoFor(tok, false);
-        string? shiftJamo = special ? null : layout.JamoFor(tok, true);
+        bool isSpace = tok == " ";
+        string label = isSpace ? "사이띄기" : special ? tok[1..].TrimEnd('2') : tok;
+        string? jamo = (special || isSpace) ? null : layout.JamoFor(tok, false);
+        string? shiftJamo = (special || isSpace) ? null : layout.JamoFor(tok, true);
         if (shiftJamo == jamo) shiftJamo = null;
 
         var grid = new Grid();

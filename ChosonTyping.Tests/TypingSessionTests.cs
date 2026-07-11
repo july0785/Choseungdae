@@ -46,6 +46,15 @@ public class TypingSessionTests
     }
 
     [Fact]
+    public void 낱말_다_치면_다음_글쇠는_사이띄기()
+    {
+        var s = new TypingSession("가 나", Layout("kukgyu"));
+        s.Feed("S", false);                       // ㄱ
+        s.Feed("J", false);                       // ㅏ → 가
+        Assert.Equal((" ", false), s.NextKey());  // 다음은 사이띄기
+    }
+
+    [Fact]
     public void 윗글쇠_자모_안내()
     {
         var s = new TypingSession("빠", Layout("kukgyu"));
