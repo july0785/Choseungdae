@@ -36,6 +36,7 @@ public partial class SentenceView : UserControl
         _main = main;
         _layout = layout;
         Kb.SetLayout(layout);
+        BackBtn.Content = Loc.S("nav.start");
 
         var (modules, errors) = ContentModule.LoadDir(Path.Combine(AppConfig.DataDir, "sentences"));
         var pool = modules.Where(m => m.Items is not null).SelectMany(m => m.Items!).ToList();
@@ -66,7 +67,7 @@ public partial class SentenceView : UserControl
             return;
         }
         _session = new TypingSession(_sentences[_index], _layout);
-        TitleText.Text = $"짧은글련습 · {_index + 1}/{_sentences.Count}";
+        TitleText.Text = Loc.F("sent.title", _index + 1, _sentences.Count);
         PrevLine.Text = _index > 0 ? _sentences[_index - 1] : "";
         NextLine.Text = _index + 1 < _sentences.Count ? _sentences[_index + 1] : "";
         NextLine2.Text = _index + 2 < _sentences.Count ? _sentences[_index + 2] : "";
@@ -82,9 +83,9 @@ public partial class SentenceView : UserControl
         double cpm = TypingStats.Cpm(_doneStrokes, _watch.Elapsed);
         PrevLine.Text = "";
         TargetLine.Inlines.Clear();
-        TargetLine.Inlines.Add(new Run("끝!") { Foreground = (Brush)FindResource("Ink"), FontWeight = FontWeights.ExtraBold });
-        NextLine.Text = $"타속 {cpm:0} 타/분 · 정확도 {acc:0} %";
-        NextLine2.Text = "다시 — 넣기(Enter) · 시작화면 — Esc";
+        TargetLine.Inlines.Add(new Run(Loc.S("common.done")) { Foreground = (Brush)FindResource("Ink"), FontWeight = FontWeights.ExtraBold });
+        NextLine.Text = Loc.F("sent.result", $"{cpm:0}", $"{acc:0}");
+        NextLine2.Text = Loc.S("sent.retry");
         Kb.SetNext(null);
         ViewFx.SlideIn(LyricStack);
         Stats.Update(cpm, acc, 100);

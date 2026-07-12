@@ -9,14 +9,14 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="0,0,36,0">
-                <TextBlock Style="{StaticResource Label}" Text="타속"/>
+                <TextBlock x:Name="CpmLabel" Style="{StaticResource Label}"/>
                 <TextBlock x:Name="CpmText" FontSize="21" FontWeight="ExtraBold"
-                           Foreground="{DynamicResource Ink}" Text="0 타/분"/>
+                           Foreground="{DynamicResource Ink}" Text="0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="0,0,36,0">
-                <TextBlock Style="{StaticResource Label}" Text="정확도"/>
+                <TextBlock x:Name="AccLabel" Style="{StaticResource Label}"/>
                 <TextBlock x:Name="AccText" FontSize="21" FontWeight="ExtraBold"
-                           Foreground="{DynamicResource Ink}" Text="100 %"/>
+                           Foreground="{DynamicResource Ink}" Text="100"/>
             </StackPanel>
             <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="20,0,0,0">
                 <Border x:Name="Track" Height="4" CornerRadius="2" Background="{DynamicResource Hair}">

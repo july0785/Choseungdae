@@ -10,6 +10,12 @@ public partial class InputDialog : Window
     public InputDialog(string defaultTitle, string defaultSource)
     {
         InitializeComponent();
+        Title = Core.Loc.S("imp.title");
+        TitleTb.Text = Core.Loc.S("imp.title");
+        NameLabel.Text = Core.Loc.S("imp.name");
+        SourceLabel.Text = Core.Loc.S("imp.source");
+        CancelBtn.Content = Core.Loc.S("imp.cancel");
+        SaveBtn.Content = Core.Loc.S("imp.save");
         TitleBox.Text = defaultTitle;
         SourceBox.Text = defaultSource;
         Loaded += (_, _) => TitleBox.Focus();

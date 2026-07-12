@@ -31,6 +31,7 @@ public partial class WordView : UserControl
         _main = main;
         _layout = layout;
         Kb.SetLayout(layout);
+        BackBtn.Content = Loc.S("nav.start");
 
         var (modules, errors) = ContentModule.LoadDir(Path.Combine(AppConfig.DataDir, "words"));
         var pool = modules.Where(m => m.Items is not null).SelectMany(m => m.Items!).ToList();
@@ -56,10 +57,10 @@ public partial class WordView : UserControl
     void ShowEmpty()
     {
         _finished = true;
-        TitleText.Text = "낱말련습";
+        TitleText.Text = Loc.S("stage.word");
         TargetText.Inlines.Clear();
-        TargetText.Inlines.Add(new Run("낱말이 아직 없습니다") { Foreground = (Brush)FindResource("Faint") });
-        HintText.Text = "시작화면 — Esc";
+        TargetText.Inlines.Add(new Run(Loc.S("word.empty")) { Foreground = (Brush)FindResource("Faint") });
+        HintText.Text = Loc.S("word.escOnly");
         Kb.SetNext(null);
     }
 
@@ -72,7 +73,7 @@ public partial class WordView : UserControl
             return;
         }
         _session = new TypingSession(_words[_index], _layout);
-        TitleText.Text = $"낱말련습 · {_index + 1}/{_words.Count}";
+        TitleText.Text = Loc.F("word.title", _index + 1, _words.Count);
         HintText.Text = "";
         ViewFx.SlideIn(WordStack);
         Refresh();
@@ -83,8 +84,8 @@ public partial class WordView : UserControl
         _finished = true;
         _watch.Stop();
         TargetText.Inlines.Clear();
-        TargetText.Inlines.Add(new Run("끝!") { Foreground = (Brush)FindResource("Ink") });
-        HintText.Text = "다시 — 넣기(Enter) · 시작화면 — Esc";
+        TargetText.Inlines.Add(new Run(Loc.S("common.done")) { Foreground = (Brush)FindResource("Ink") });
+        HintText.Text = Loc.S("word.retry");
         Kb.SetNext(null);
         ViewFx.SlideIn(WordStack);
     }

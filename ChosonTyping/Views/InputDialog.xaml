@@ -18,16 +18,16 @@
     </Window.Resources>
     <Border BorderBrush="{DynamicResource Hair}" BorderThickness="1" Padding="30,26,30,24">
         <StackPanel>
-            <TextBlock Text="긴글 불러오기" FontSize="18" FontWeight="ExtraBold"
+            <TextBlock x:Name="TitleTb" FontSize="18" FontWeight="ExtraBold"
                        Foreground="{DynamicResource Ink}"/>
-            <TextBlock Text="제목" Style="{StaticResource Label}" Margin="0,16,0,6"/>
+            <TextBlock x:Name="NameLabel" Style="{StaticResource Label}" Margin="0,16,0,6"/>
             <TextBox x:Name="TitleBox"/>
-            <TextBlock Text="출처" Style="{StaticResource Label}" Margin="0,12,0,6"/>
+            <TextBlock x:Name="SourceLabel" Style="{StaticResource Label}" Margin="0,12,0,6"/>
             <TextBox x:Name="SourceBox"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-                <Button Content="그만두기" Style="{StaticResource QuietButton}" Margin="0,0,12,0"
+                <Button x:Name="CancelBtn" Style="{StaticResource QuietButton}" Margin="0,0,12,0"
                         Click="Cancel_Click"/>
-                <Button Content="저장" Style="{StaticResource AccentButton}" Padding="22,8"
+                <Button x:Name="SaveBtn" Style="{StaticResource AccentButton}" Padding="22,8"
                         Click="Ok_Click"/>
             </StackPanel>
         </StackPanel>

@@ -35,6 +35,7 @@ public partial class KeyDrillView : UserControl
         _main = main;
         _layout = layout;
         Kb.SetLayout(layout);
+        BackBtn.Content = Loc.S("nav.start");
         BuildHands();
         StartStage(stage);
 
@@ -58,7 +59,7 @@ public partial class KeyDrillView : UserControl
         _strokes = 0;
         _done = false;
         _watch.Reset();
-        TitleText.Text = $"자리련습 · {DrillLesson.Stages[_stage].Name} {_stage + 1}/{DrillLesson.Stages.Length}";
+        TitleText.Text = Loc.F("drill.title", Loc.S("drill.part" + (_stage + 1)), _stage + 1, DrillLesson.Stages.Length);
         UpdatePrompt();
         Stats.Update(0, 100, 0);
     }
@@ -68,9 +69,9 @@ public partial class KeyDrillView : UserControl
         if (_idx >= _seq.Count)
         {
             _done = true;
-            BigJamo.Text = "끝!";
+            BigJamo.Text = Loc.S("common.done");
             BigJamo.Foreground = (Brush)FindResource("Ink");
-            HintText.Text = "다음 단계 — 넣기(Enter) · 시작화면 — Esc";
+            HintText.Text = Loc.S("drill.next");
             SeqText.Inlines.Clear();
             Kb.SetNext(null);
             SetActiveFinger("");
@@ -82,9 +83,10 @@ public partial class KeyDrillView : UserControl
         BigJamo.Foreground = (Brush)FindResource("Ink");
 
         string finger = FingerMap.For(tok);
+        string fingerName = finger.Length > 0 ? Loc.S("finger." + finger) : "";
         HintText.Inlines.Clear();
-        HintText.Inlines.Add(new Run(finger) { Foreground = (Brush)FindResource("Accent"), FontWeight = FontWeights.Bold });
-        HintText.Inlines.Add(new Run($"손가락 — {tok} 자리") { Foreground = (Brush)FindResource("Mid") });
+        HintText.Inlines.Add(new Run(fingerName) { Foreground = (Brush)FindResource("Accent"), FontWeight = FontWeights.Bold });
+        HintText.Inlines.Add(new Run(Loc.F("drill.hint", "", tok)) { Foreground = (Brush)FindResource("Mid") });
 
         Kb.SetNext(tok);
         SetActiveFinger(finger);
@@ -195,21 +197,21 @@ public partial class KeyDrillView : UserControl
 
     // ── 손 그림: 회색조 손가락 막대, 지금 쓸 손가락만 빨강(확정 시안) ──
 
-    static readonly (string Name, double H)[] LeftFingers =
+    static readonly (string Id, double H)[] LeftFingers =
     {
-        ("왼손 새끼", 34), ("왼손 약", 48), ("왼손 가운데", 56), ("왼손 집게", 50), ("엄지", 26),
+        ("lp", 34), ("lr", 48), ("lm", 56), ("li", 50), ("th", 26),
     };
 
-    static readonly (string Name, double H)[] RightFingers =
+    static readonly (string Id, double H)[] RightFingers =
     {
-        ("엄지", 26), ("오른손 집게", 50), ("오른손 가운데", 56), ("오른손 약", 48), ("오른손 새끼", 34),
+        ("th", 26), ("ri", 50), ("rm", 56), ("rr", 48), ("rp", 34),
     };
 
     void BuildHands()
     {
-        void Build(StackPanel panel, (string Name, double H)[] fingers)
+        void Build(StackPanel panel, (string Id, double H)[] fingers)
         {
-            foreach (var (name, h) in fingers)
+            foreach (var (id, h) in fingers)
             {
                 var bar = new Rectangle
                 {
@@ -221,8 +223,8 @@ public partial class KeyDrillView : UserControl
                     VerticalAlignment = VerticalAlignment.Bottom,
                     Margin = new Thickness(3, 0, 3, 0),
                 };
-                if (!_fingerBars.TryGetValue(name, out var list))
-                    _fingerBars[name] = list = new List<Rectangle>();
+                if (!_fingerBars.TryGetValue(id, out var list))
+                    _fingerBars[id] = list = new List<Rectangle>();
                 list.Add(bar);
                 panel.Children.Add(bar);
             }
@@ -239,7 +241,7 @@ public partial class KeyDrillView : UserControl
         if (finger.Length > 0 && _fingerBars.TryGetValue(finger, out var active))
             foreach (var bar in active)
                 bar.Fill = (Brush)FindResource("Accent");
-        HandCap.Text = finger.Length > 0 ? finger : "";
+        HandCap.Text = finger.Length > 0 ? Loc.S("finger." + finger) : "";
     }
 
     void GoBack() => _main.Navigate(() => new StartView(_main));

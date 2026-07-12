@@ -20,7 +20,7 @@ public partial class AcidRainView : UserControl
 
     readonly MainWindow _main;
     readonly KeyboardLayout _layout;
-    readonly List<string> _pool;
+    readonly WordBank _bank;
     readonly Random _rng = new();
     readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(33) };
     readonly Stopwatch _watch = new();
@@ -44,10 +44,14 @@ public partial class AcidRainView : UserControl
         _layout = layout;
         Kb.SetLayout(layout);
         Kb.SetNext(null);
+        BackBtn.Content = Loc.S("nav.start");
+        TitleText.Text = Loc.S("stage.rain");
+        AgainText.Text = Loc.S("rain.again");
 
         var (modules, errors) = ContentModule.LoadDir(Path.Combine(AppConfig.DataDir, "words"));
-        _pool = modules.Where(m => m.Items is not null).SelectMany(m => m.Items!)
+        var pool = modules.Where(m => m.Items is not null).SelectMany(m => m.Items!)
             .Where(w => w.Length <= 5).ToList();
+        _bank = new WordBank(pool, layout, _rng);
 
         _timer.Tick += Tick;
         UpdateHud();
@@ -57,11 +61,11 @@ public partial class AcidRainView : UserControl
             _window = Window.GetWindow(this);
             if (_window is not null) _window.PreviewKeyDown += OnKey;
             ErrorDialog.ShowErrors(_window, errors);
-            if (_pool.Count == 0)
+            if (_bank.Count == 0)
             {
                 _over = true;
-                OverTitle.Text = "낱말이 아직 없습니다";
-                OverDetail.Text = "삼흥사전에서 낱말을 뽑으면 산성비를 즐길수 있습니다.";
+                OverTitle.Text = Loc.S("rain.empty");
+                OverDetail.Text = Loc.S("rain.emptyDetail");
                 GameOverPanel.Visibility = Visibility.Visible;
                 return;
             }
@@ -115,23 +119,11 @@ public partial class AcidRainView : UserControl
         UpdateHud();
     }
 
-    /// <summary>낱말 하나 고르기. 단계가 오르면 두번 뽑아 더 긴 쪽을 택해 어려운 낱말이 자주 나오게.</summary>
-    string PickWord()
-    {
-        string w = _pool[_rng.Next(_pool.Count)];
-        if (_level >= 4)
-        {
-            string w2 = _pool[_rng.Next(_pool.Count)];
-            if (w2.Length > w.Length) w = w2;
-        }
-        return w;
-    }
-
     void Spawn()
     {
-        // 화면에 이미 있는 낱말과 겹치지 않게 몇번 다시 뽑는다(생성 낭비 방지).
-        string word = PickWord();
-        for (int t = 0; t < 5 && _falling.Any(f => f.Word == word); t++) word = PickWord();
+        // 게임 단계에 맞춰 낱말단계를 뽑는다. 화면에 이미 있는 낱말과 겹치지 않게 몇번 다시 뽑는다.
+        string word = _bank.Pick(_level);
+        for (int t = 0; t < 6 && _falling.Any(f => f.Word == word); t++) word = _bank.Pick(_level);
         if (_falling.Any(f => f.Word == word)) return;
 
         var block = new TextBlock
@@ -227,8 +219,9 @@ public partial class AcidRainView : UserControl
             config.HighScore = _score;
             config.Save();
         }
-        OverTitle.Text = "끝!";
-        OverDetail.Text = $"점수 {_score:N0} · 단계 {_level}" + (best ? " — 최고기록 갱신!" : $" · 최고 {config.HighScore:N0}");
+        OverTitle.Text = Loc.S("rain.over");
+        OverDetail.Text = Loc.F("rain.overDetail", $"{_score:N0}", _level)
+            + (best ? Loc.S("rain.best") : Loc.F("rain.prevBest", $"{config.HighScore:N0}"));
         GameOverPanel.Visibility = Visibility.Visible;
         UpdateHud();
     }
@@ -238,7 +231,7 @@ public partial class AcidRainView : UserControl
     {
         var t = new TextBlock
         {
-            Text = $"단계 {_level}",
+            Text = Loc.F("rain.level", _level),
             FontSize = 46,
             FontWeight = FontWeights.ExtraBold,
             Foreground = (Brush)FindResource("Accent"),
@@ -260,7 +253,7 @@ public partial class AcidRainView : UserControl
     void UpdateHud()
     {
         int high = Math.Max(_score, AppConfig.Load().HighScore);
-        ScoreText.Text = $"점수 {_score:N0} · 단계 {_level} · 목숨 {_lives} · 최고 {high:N0}";
+        ScoreText.Text = Loc.F("rain.hud", $"{_score:N0}", _level, _lives, $"{high:N0}");
         double cpm = TypingStats.Cpm(_strokes, _watch.Elapsed);
         double acc = _strokes == 0 ? 100 : Math.Min(100, _hitUnits * 100.0 / _strokes);
         Stats.Update(cpm, acc, _kills % KillsPerLevel * (100.0 / KillsPerLevel));

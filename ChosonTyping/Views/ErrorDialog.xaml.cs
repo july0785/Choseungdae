@@ -7,6 +7,10 @@ public partial class ErrorDialog : Window
     public ErrorDialog(IEnumerable<string> errors)
     {
         InitializeComponent();
+        Title = Core.Loc.S("err.title");
+        TitleTb.Text = Core.Loc.S("err.title");
+        SkipTb.Text = Core.Loc.S("err.skip");
+        OkBtn.Content = Core.Loc.S("common.ok");
         MessageText.Text = string.Join("\n", errors);
     }
 

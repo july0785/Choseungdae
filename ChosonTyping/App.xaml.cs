@@ -14,7 +14,9 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        ApplyTheme(Resolve(AppConfig.Load().Theme));
+        var config = AppConfig.Load();
+        Core.Loc.Lang = config.Lang;
+        ApplyTheme(Resolve(config.Theme));
         int at = Array.IndexOf(e.Args, "--stage");
         if (at >= 0 && at + 1 < e.Args.Length && int.TryParse(e.Args[at + 1], out int stage))
             StartupStage = stage;

@@ -17,6 +17,7 @@ public partial class MainWindow : Window
         StateChanged += (_, _) =>
             Shell.Margin = WindowState == WindowState.Maximized ? new Thickness(7) : new Thickness(0);
         ApplyTaskbarIcon();
+        ApplyChrome();
         UpdateLogo();
         Navigate(() => new Views.StartView(this));
         if (App.StartupStage is int stage) NavigateStage(stage);
@@ -43,6 +44,22 @@ public partial class MainWindow : Window
     {
         _factory = factory;
         Host.Content = factory();
+    }
+
+    /// <summary>화면을 다시 만들어 붙인다 — 언어를 바꾼 뒤 번역글을 새로 읽게.</summary>
+    public void Refresh()
+    {
+        if (_factory is not null) Host.Content = _factory();
+    }
+
+    /// <summary>창머리 글자(판·툴팁)를 지금 언어로 맞춘다.</summary>
+    public void ApplyChrome()
+    {
+        VersionText.Text = Loc.S("app.version");
+        ThemeBtn.ToolTip = Loc.S("tip.theme");
+        MinBtn.ToolTip = Loc.S("tip.min");
+        MaxBtn.ToolTip = Loc.S("tip.max");
+        CloseBtn.ToolTip = Loc.S("tip.close");
     }
 
     static string AssetsDir => Path.Combine(AppContext.BaseDirectory, "Assets");

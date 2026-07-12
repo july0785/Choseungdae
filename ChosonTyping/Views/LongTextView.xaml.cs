@@ -39,6 +39,7 @@ public partial class LongTextView : UserControl
         _module = module;
         _isTest = isTest;
         Kb.SetLayout(layout);
+        BackBtn.Content = Loc.S("nav.list");
 
         _lines = (module.Body ?? "").Replace("\r\n", "\n").Split('\n')
             .Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
@@ -67,7 +68,7 @@ public partial class LongTextView : UserControl
             return;
         }
         _session = new TypingSession(_lines[_index], _layout);
-        TitleText.Text = $"{(_isTest ? "타자검정" : "긴글련습")} · {_module.Title} · {_index + 1}/{_lines.Count}줄";
+        TitleText.Text = Loc.F(_isTest ? "long.testTitle" : "long.title", _module.Title, _index + 1, _lines.Count);
         PrevLine.Text = _index > 0 ? _lines[_index - 1] : "";
         NextLine.Text = _index + 1 < _lines.Count ? _lines[_index + 1] : "";
         NextLine2.Text = _index + 2 < _lines.Count ? _lines[_index + 2] : "";
@@ -78,12 +79,12 @@ public partial class LongTextView : UserControl
     /// <summary>급수표 — 타속과 정확도를 함께 본다.</summary>
     static string Grade(double cpm, double acc)
     {
-        if (cpm >= 500 && acc >= 98) return "특급";
-        if (cpm >= 400 && acc >= 96) return "1급";
-        if (cpm >= 300 && acc >= 94) return "2급";
-        if (cpm >= 200 && acc >= 92) return "3급";
-        if (cpm >= 100 && acc >= 90) return "4급";
-        return "급외";
+        if (cpm >= 500 && acc >= 98) return Loc.S("grade.s");
+        if (cpm >= 400 && acc >= 96) return Loc.S("grade.1");
+        if (cpm >= 300 && acc >= 94) return Loc.S("grade.2");
+        if (cpm >= 200 && acc >= 92) return Loc.S("grade.3");
+        if (cpm >= 100 && acc >= 90) return Loc.S("grade.4");
+        return Loc.S("grade.none");
     }
 
     void Finish()
@@ -95,13 +96,13 @@ public partial class LongTextView : UserControl
 
         PrevLine.Text = "";
         TargetLine.Inlines.Clear();
-        TargetLine.Inlines.Add(new Run(_isTest ? $"판정 — {Grade(cpm, acc)}" : "끝!")
+        TargetLine.Inlines.Add(new Run(_isTest ? Loc.F("long.grade", Grade(cpm, acc)) : Loc.S("common.done"))
         {
             Foreground = (Brush)FindResource("Ink"),
             FontWeight = FontWeights.ExtraBold,
         });
-        NextLine.Text = $"타속 {cpm:0} 타/분 · 정확도 {acc:0} %";
-        NextLine2.Text = "다시 — 넣기(Enter) · 글 고르기 — Esc";
+        NextLine.Text = Loc.F("sent.result", $"{cpm:0}", $"{acc:0}");
+        NextLine2.Text = Loc.S("long.retry");
         Kb.SetNext(null);
         ViewFx.SlideIn(LyricStack);
         Stats.Update(cpm, acc, 100);

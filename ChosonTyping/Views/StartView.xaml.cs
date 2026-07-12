@@ -8,27 +8,13 @@ using ChosonTyping.Core;
 
 namespace ChosonTyping.Views;
 
-/// <summary>시작화면(설계서 6항): 건반배렬 고르기 + 련습단계 고르기.</summary>
+/// <summary>시작화면(설계서 6항): 화면 언어 · 건반배렬 고르기 · 련습단계 고르기.</summary>
 public partial class StartView : UserControl
 {
     static readonly string[] LayoutOrder = { "kukgyu", "changdeok", "dubeol-std" };
 
-    static readonly Dictionary<string, string> LayoutDesc = new()
-    {
-        ["kukgyu"] = "KPS 9256 · 왼손 자음, 오른손 모음",
-        ["changdeok"] = "겹모음 아홉을 가장자리 글쇠 하나로",
-        ["dubeol-std"] = "남측 표준 배렬",
-    };
-
-    static readonly (string Name, string Desc, bool Enabled)[] Stages =
-    {
-        ("자리련습", "글쇠자리를 눈에 익히고 손에 익힙니다", true),
-        ("낱말련습", "화면에 나오는 낱말을 보고 정확히 칩니다", true),
-        ("짧은글련습", "짧은 문장을 되풀이해 치며 속도를 올립니다", true),
-        ("긴글련습", "가요의 가사를 처음부터 끝까지 따라 칩니다", true),
-        ("타자검정", "타자 속도와 정확도를 재여 급수를 매깁니다", true),
-        ("산성비", "떨어지는 낱말을 바닥에 닿기 전에 없앱니다", true),
-    };
+    // 각 단계의 이름·설명 번역 열쇠. 여섯 단계 모두 켜짐.
+    static readonly string[] StageKeys = { "drill", "word", "sentence", "long", "test", "rain" };
 
     readonly MainWindow _main;
     readonly List<KeyboardLayout> _layouts = new();
@@ -50,8 +36,46 @@ public partial class StartView : UserControl
             throw new InvalidDataException("data\\layouts 에서 배렬 화일을 찾을수 없습니다.");
         if (_layouts.All(l => l.Id != _selectedId)) _selectedId = _layouts[0].Id;
 
+        LangLabel.Text = Loc.S("start.language");
+        TitleText.Text = Loc.S("start.title");
+        SubText.Text = Loc.S("start.sub");
+        LayoutsLabel.Text = Loc.S("start.layouts");
+        StagesLabel.Text = Loc.S("start.stages");
+        StartBtn.Content = Loc.S("start.begin");
+
+        BuildLangBar();
         BuildCards();
         BuildStages();
+    }
+
+    void BuildLangBar()
+    {
+        foreach (var (code, name) in Loc.Languages)
+        {
+            bool cur = code == Loc.Lang;
+            var b = new Button
+            {
+                Content = name,
+                Style = (Style)FindResource("QuietButton"),
+                FontWeight = cur ? FontWeights.Bold : FontWeights.Normal,
+                Foreground = (Brush)FindResource(cur ? "Accent" : "Mid"),
+                Margin = new Thickness(8, 0, 0, 0),
+            };
+            string c = code;
+            b.Click += (_, _) => SwitchLang(c);
+            LangBar.Children.Add(b);
+        }
+    }
+
+    void SwitchLang(string code)
+    {
+        if (code == Loc.Lang) return;
+        Loc.Lang = code;
+        var config = AppConfig.Load();
+        config.Lang = code;
+        config.Save();
+        _main.ApplyChrome();
+        _main.Navigate(() => new StartView(_main));  // 새 언어로 다시 그림
     }
 
     void BuildCards()
@@ -60,12 +84,12 @@ public partial class StartView : UserControl
         {
             var name = new TextBlock
             {
-                Text = layout.Name, FontSize = 16, FontWeight = FontWeights.Bold,
+                Text = Loc.S("layout." + layout.Id), FontSize = 16, FontWeight = FontWeights.Bold,
                 Foreground = (Brush)FindResource("Ink"),
             };
             var desc = new TextBlock
             {
-                Text = LayoutDesc.GetValueOrDefault(layout.Id, ""),
+                Text = Loc.S("layout." + layout.Id + ".desc"),
                 FontSize = 12, Foreground = (Brush)FindResource("Mid"),
                 TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0),
             };
@@ -118,9 +142,8 @@ public partial class StartView : UserControl
 
     void BuildStages()
     {
-        for (int i = 0; i < Stages.Length; i++)
+        for (int i = 0; i < StageKeys.Length; i++)
         {
-            var (name, desc, enabled) = Stages[i];
             var row = new DockPanel();
             row.Children.Add(new TextBlock
             {
@@ -129,14 +152,12 @@ public partial class StartView : UserControl
             });
             row.Children.Add(new TextBlock
             {
-                Text = name, FontSize = 15, FontWeight = FontWeights.Bold, Width = 120,
-                Foreground = (Brush)FindResource(enabled ? "Ink" : "Faint"),
-                VerticalAlignment = VerticalAlignment.Center,
+                Text = Loc.S("stage." + StageKeys[i]), FontSize = 15, FontWeight = FontWeights.Bold, Width = 148,
+                Foreground = (Brush)FindResource("Ink"), VerticalAlignment = VerticalAlignment.Center,
             });
             var tail = new TextBlock
             {
-                Text = enabled ? "→" : "준비중",
-                FontSize = enabled ? 14 : 11,
+                Text = "→", FontSize = 14,
                 Foreground = (Brush)FindResource("Faint"),
                 HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center,
             };
@@ -144,9 +165,9 @@ public partial class StartView : UserControl
             row.Children.Add(tail);
             row.Children.Add(new TextBlock
             {
-                Text = desc, FontSize = 13,
-                Foreground = (Brush)FindResource(enabled ? "Mid" : "Faint"),
-                VerticalAlignment = VerticalAlignment.Center,
+                Text = Loc.S("stage." + StageKeys[i] + ".desc"), FontSize = 13,
+                Foreground = (Brush)FindResource("Mid"),
+                VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis,
             });
 
             var border = new Border
@@ -155,16 +176,13 @@ public partial class StartView : UserControl
                 BorderThickness = new Thickness(0, i == 0 ? 1 : 0, 0, 1),
                 Padding = new Thickness(4, 13, 4, 13),
                 Background = Brushes.Transparent,
+                Cursor = Cursors.Hand,
                 Child = row,
             };
-            if (enabled)
-            {
-                int stageIndex = i;
-                border.Cursor = Cursors.Hand;
-                border.MouseEnter += (_, _) => border.Background = (Brush)FindResource("Soft");
-                border.MouseLeave += (_, _) => border.Background = Brushes.Transparent;
-                border.MouseLeftButtonUp += (_, _) => StartStage(stageIndex);
-            }
+            int stageIndex = i;
+            border.MouseEnter += (_, _) => border.Background = (Brush)FindResource("Soft");
+            border.MouseLeave += (_, _) => border.Background = Brushes.Transparent;
+            border.MouseLeftButtonUp += (_, _) => StartStage(stageIndex);
             StageList.Children.Add(border);
         }
     }

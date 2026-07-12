@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using ChosonTyping.Core;
 
 namespace ChosonTyping.Views;
 
@@ -8,13 +9,15 @@ public partial class StatsBar : UserControl
     public StatsBar()
     {
         InitializeComponent();
+        CpmLabel.Text = Loc.S("stats.cpm");
+        AccLabel.Text = Loc.S("stats.acc");
     }
 
     public void Update(double cpm, double accuracy, double progress)
     {
-        CpmText.Text = $"{cpm:0} 타/분";
+        CpmText.Text = $"{cpm:0} {Loc.S("stats.unit")}";
         AccText.Text = $"{accuracy:0} %";
-        ProgText.Text = $"진행률 {progress:0}%";
+        ProgText.Text = Loc.F("stats.progress", $"{progress:0}");
         Fill.Width = Track.ActualWidth * Math.Clamp(progress, 0, 100) / 100.0;
     }
 }

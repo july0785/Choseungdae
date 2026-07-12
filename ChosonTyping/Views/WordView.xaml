@@ -14,7 +14,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Style="{StaticResource QuietButton}"
-                            Content="← 시작화면" HorizontalAlignment="Left" Click="Back_Click"/>
+                            x:Name="BackBtn" HorizontalAlignment="Left" Click="Back_Click"/>
                     <TextBlock x:Name="TitleText" Grid.Column="1" FontSize="13" FontWeight="Bold"
                                Foreground="{DynamicResource Mid}" VerticalAlignment="Center"/>
                 </Grid>

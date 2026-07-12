@@ -11,6 +11,9 @@ public sealed class AppConfig
     /// <summary>화면형식: "auto"(계통을 따름), "light"(밝은), "dark"(어두운).</summary>
     public string Theme { get; set; } = "auto";
 
+    /// <summary>화면 언어: "ko" | "en" | "ja".</summary>
+    public string Lang { get; set; } = "ko";
+
     /// <summary>산성비 최고기록.</summary>
     public int HighScore { get; set; }
 

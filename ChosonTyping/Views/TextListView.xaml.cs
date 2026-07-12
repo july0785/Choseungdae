@@ -20,10 +20,11 @@ public partial class TextListView : UserControl
         _main = main;
         _layout = layout;
         _isTest = isTest;
-        TitleText.Text = _isTest ? "타자검정" : "긴글련습";
-        SubText.Text = _isTest
-            ? "글 하나를 골라 처음부터 끝까지 치면 속도와 정확도를 재여 급수를 매깁니다."
-            : "글 하나를 골라 처음부터 끝까지 따라 칩니다.";
+        BackBtn.Content = Loc.S("nav.start");
+        PickLabel.Text = Loc.S("list.pick");
+        ImportBtn.Content = Loc.S("list.import");
+        TitleText.Text = Loc.S(_isTest ? "list.test" : "list.long");
+        SubText.Text = Loc.S(_isTest ? "list.testSub" : "list.longSub");
         Loaded += (_, _) => Reload();
     }
 
@@ -38,16 +39,16 @@ public partial class TextListView : UserControl
         errors.AddRange(e2);
 
         int i = 0;
-        foreach (var (m, tag) in builtin.Select(m => (m, "내장"))
-                     .Concat(imported.Select(m => (m, "불러온 글"))))
+        foreach (var (m, isBuiltin) in builtin.Select(m => (m, true))
+                     .Concat(imported.Select(m => (m, false))))
         {
-            TextList.Children.Add(MakeRow(m, tag, i++));
+            TextList.Children.Add(MakeRow(m, isBuiltin, i++));
         }
         if (i == 0)
         {
             TextList.Children.Add(new TextBlock
             {
-                Text = "열수 있는 글이 없습니다 — 아래 《불러오기》로 .txt를 넣어보십시오.",
+                Text = Loc.S("list.empty"),
                 FontSize = 13, Foreground = (Brush)FindResource("Faint"),
                 Margin = new Thickness(4, 8, 0, 8),
             });
@@ -55,7 +56,7 @@ public partial class TextListView : UserControl
         ErrorDialog.ShowErrors(Window.GetWindow(this), errors);
     }
 
-    Border MakeRow(ContentModule m, string tag, int index)
+    Border MakeRow(ContentModule m, bool isBuiltin, int index)
     {
         var row = new DockPanel();
         row.Children.Add(new TextBlock
@@ -65,8 +66,8 @@ public partial class TextListView : UserControl
         });
         var tagText = new TextBlock
         {
-            Text = tag, FontSize = 11,
-            Foreground = (Brush)FindResource(tag == "내장" ? "Faint" : "Sky"),
+            Text = Loc.S(isBuiltin ? "list.builtin" : "list.imported"), FontSize = 11,
+            Foreground = (Brush)FindResource(isBuiltin ? "Faint" : "Sky"),
             HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center,
         };
         DockPanel.SetDock(tagText, Dock.Right);
@@ -107,8 +108,8 @@ public partial class TextListView : UserControl
     {
         var dlg = new Microsoft.Win32.OpenFileDialog
         {
-            Filter = "글 화일 (*.txt)|*.txt",
-            Title = "긴글 불러오기",
+            Filter = Loc.S("imp.filter"),
+            Title = Loc.S("imp.title"),
         };
         if (dlg.ShowDialog() != true) return;
 
@@ -124,7 +125,7 @@ public partial class TextListView : UserControl
         }
         if (body.Trim().Length == 0) return;
 
-        var input = new InputDialog(Path.GetFileNameWithoutExtension(dlg.FileName), "사용자 불러오기")
+        var input = new InputDialog(Path.GetFileNameWithoutExtension(dlg.FileName), Loc.S("imp.default"))
         {
             Owner = Window.GetWindow(this),
         };

@@ -8,7 +8,8 @@
                 <ResourceDictionary Source="Themes/Light.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <FontFamily x:Key="Main">Malgun Gothic</FontFamily>
+            <!-- 조선어·라틴은 맑은 고딕, 일본어 글자는 유고딕/메이료로 자동 대체 -->
+            <FontFamily x:Key="Main">Malgun Gothic, Yu Gothic UI, Meiryo, Segoe UI</FontFamily>
 
             <!-- 글자 스타일 -->
             <Style x:Key="H1" TargetType="TextBlock">
