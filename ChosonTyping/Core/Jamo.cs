@@ -39,6 +39,9 @@ public static class Jamo
     public static bool IsVowel(char c) => Jung.Contains(c);
     public static bool CanBeJong(char c) => Jong.IndexOf(c) > 0;
 
+    /// <summary>조합에 쓰이는 자모인가 — 배렬이 《 같은 기호를 내는 글쇠와 구별하는 데 쓴다.</summary>
+    public static bool IsJamo(char c) => IsChoseong(c) || IsVowel(c) || CanBeJong(c);
+
     public static char Compose(int cho, int jung, int jong) =>
         (char)(0xAC00 + (cho * 21 + jung) * 28 + jong);
 }

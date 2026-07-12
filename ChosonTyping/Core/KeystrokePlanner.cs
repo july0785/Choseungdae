@@ -72,10 +72,14 @@ public static class KeystrokePlanner
             return units;
         }
 
-        // 한글이 아닌 글자: 그 글쇠가 자모를 내지 않을 때만 그대로 칠수 있다.
-        string tok2 = c.ToString();
+        // 한글이 아닌 글자.
         if (c == ' ') return new List<KeyUnit> { new(" ", false, '\0') };
         if (c == '\n') return new List<KeyUnit> { new("\n", false, '\0') };
+        // 배렬이 그 글자를 내는 글쇠가 따로 있으면 그 글쇠로 안내한다(례: 《 → [글쇠).
+        if (!Jamo.IsJamo(c) && rev.TryGetValue(c, out var sym))
+            return new List<KeyUnit> { new(sym.Tok, sym.Shift, '\0') };
+        // 그 밖엔 글쇠 토큰이 곧 그 글자이고 자모를 내지 않을 때만 그대로 칠수 있다.
+        string tok2 = c.ToString();
         if (layout.JamoFor(tok2, false) is null)
             return new List<KeyUnit> { new(tok2, false, '\0') };
         return null;

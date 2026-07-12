@@ -35,6 +35,20 @@ public class TypingSessionTests
     }
 
     [Fact]
+    public void 국규에서_겹화살괄호는_대괄호글쇠로_치고_조합없이_붙는다()
+    {
+        var s = new TypingSession("《조선》", Layout("kukgyu"));
+        Assert.Equal(("[", false), s.NextKey());  // 《는 [글쇠
+        s.Feed("[", false);
+        Assert.Equal("《", s.Typed);               // 자모 조합 없이 그대로
+        s.Feed("A", false); s.Feed("H", false);   // 조
+        s.Feed("G", false); s.Feed("I", false); s.Feed("F", false);  // 선
+        Assert.Equal(("]", false), s.NextKey());  // 》는 ]글쇠
+        s.Feed("]", false);
+        Assert.True(s.Done);
+    }
+
+    [Fact]
     public void 국규에서는_과가_세_타()
     {
         var s = new TypingSession("과", Layout("kukgyu"));

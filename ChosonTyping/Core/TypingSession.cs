@@ -47,7 +47,9 @@ public sealed class TypingSession
         string? jamo = _layout.JamoFor(token, shift);
         if (jamo is { Length: 1 })
         {
-            Composer.PutJamo(jamo[0]);
+            char m = jamo[0];
+            if (Jamo.IsJamo(m)) Composer.PutJamo(m);
+            else Composer.PutText(m);   // 《 》처럼 배렬이 내는 기호는 조합 없이 그대로
         }
         else if (token.Length == 1)
         {

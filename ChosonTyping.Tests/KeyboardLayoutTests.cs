@@ -23,6 +23,22 @@ public class KeyboardLayoutTests
     }
 
     [Fact]
+    public void 국규_아래줄_C는_피읖_V는_치읓()
+    {
+        var l = KeyboardLayout.Load(LayoutPath("kukgyu"));
+        Assert.Equal("ㅍ", l.JamoFor("C", shift: false));
+        Assert.Equal("ㅊ", l.JamoFor("V", shift: false));
+    }
+
+    [Fact]
+    public void 국규_대괄호글쇠는_겹화살괄호()
+    {
+        var l = KeyboardLayout.Load(LayoutPath("kukgyu"));
+        Assert.Equal("《", l.JamoFor("[", shift: false));
+        Assert.Equal("》", l.JamoFor("]", shift: false));
+    }
+
+    [Fact]
     public void 윗글쇠자모_없으면_기본자모로()
     {
         var l = KeyboardLayout.Load(LayoutPath("kukgyu"));
