@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -16,14 +16,14 @@ public partial class KeyboardControl : UserControl
     static readonly (string tok, double w)[][] PhysicalRows =
     {
         new[]{ ("`",1.0),("1",1.0),("2",1.0),("3",1.0),("4",1.0),("5",1.0),("6",1.0),
-               ("7",1.0),("8",1.0),("9",1.0),("0",1.0),("-",1.0),("=",1.0),("#지우기",1.8) },
-        new[]{ ("#탭",1.8),("Q",1.0),("W",1.0),("E",1.0),("R",1.0),("T",1.0),("Y",1.0),
+               ("7",1.0),("8",1.0),("9",1.0),("0",1.0),("-",1.0),("=",1.0),("#후진건",1.8) },
+        new[]{ ("#Tab건",1.8),("Q",1.0),("W",1.0),("E",1.0),("R",1.0),("T",1.0),("Y",1.0),
                ("U",1.0),("I",1.0),("O",1.0),("P",1.0),("[",1.0),("]",1.0),("\\",1.0) },
-        new[]{ ("#글자판",2.1),("A",1.0),("S",1.0),("D",1.0),("F",1.0),("G",1.0),("H",1.0),
-               ("J",1.0),("K",1.0),("L",1.0),(";",1.0),("'",1.0),("#넣기",1.9) },
-        new[]{ ("#윗글쇠",2.6),("Z",1.0),("X",1.0),("C",1.0),("V",1.0),("B",1.0),("N",1.0),
-               ("M",1.0),(",",1.0),(".",1.0),("/",1.0),("#윗글쇠2",2.6) },
-        new[]{ ("# ",1.8),(" ",9.4),("# 2",1.8) },
+        new[]{ ("#CapsLock건",2.1),("A",1.0),("S",1.0),("D",1.0),("F",1.0),("G",1.0),("H",1.0),
+               ("J",1.0),("K",1.0),("L",1.0),(";",1.0),("'",1.0),("#Enter건",1.9) },
+        new[]{ ("#Shift건",2.6),("Z",1.0),("X",1.0),("C",1.0),("V",1.0),("B",1.0),("N",1.0),
+               ("M",1.0),(",",1.0),(".",1.0),("/",1.0),("#Shift건R",2.6) },
+        new[]{ ("# ",1.8),(" ",9.4),("#  ",1.8) },
     };
 
     readonly Dictionary<string, Border> _keys = new();
@@ -55,7 +55,7 @@ public partial class KeyboardControl : UserControl
     {
         bool special = tok.StartsWith('#');
         bool isSpace = tok == " ";
-        string label = isSpace ? "사이띄기" : special ? tok[1..].TrimEnd('2') : tok;
+        string label = isSpace ? "공백건" : special ? tok[1..].TrimEnd('R') : tok;
         string? jamo = (special || isSpace) ? null : layout.JamoFor(tok, false);
         string? shiftJamo = (special || isSpace) ? null : layout.JamoFor(tok, true);
         if (shiftJamo == jamo) shiftJamo = null;
@@ -106,7 +106,7 @@ public partial class KeyboardControl : UserControl
             Child = grid,
         };
         if (!special && !_keys.ContainsKey(tok)) _keys[tok] = bd;
-        if (tok.StartsWith("#윗글쇠")) _shiftKeys.Add(bd);
+        if (tok.StartsWith("#Shift건")) _shiftKeys.Add(bd);
         return bd;
     }
 
